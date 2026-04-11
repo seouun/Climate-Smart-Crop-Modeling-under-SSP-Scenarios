@@ -5,7 +5,7 @@
 
 # Climate-Smart Crop Modeling: Predicting Bioactive Compounds under SSP Scenarios
 
-> > Predicting and stabilizing bioactive compounds under climate change scenarios using machine learning with scenario-based generalization (LOGO).
+> Predicting and stabilizing bioactive compounds under climate change scenarios using machine learning with scenario-based generalization (LOGO).
 
 A machine learning project that models the impact of climate change on bioactive compounds (TPC, TFC) in *Cnidium officinale*.  
 This study integrates environmental variables, physiological indicators, and SSP climate scenarios to build predictive models that support climate-resilient agricultural strategies.
