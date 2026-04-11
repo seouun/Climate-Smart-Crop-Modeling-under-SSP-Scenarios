@@ -5,7 +5,7 @@
 
 # Climate-Smart Crop Modeling: Predicting Bioactive Compounds under SSP Scenarios
 
-> Predicting and stabilizing bioactive compound levels under climate change scenarios using interpretable machine learning and robust generalization strategies.
+> > Predicting and stabilizing bioactive compounds under climate change scenarios using machine learning with scenario-based generalization (LOGO).
 
 A machine learning project that models the impact of climate change on bioactive compounds (TPC, TFC) in *Cnidium officinale*.  
 This study integrates environmental variables, physiological indicators, and SSP climate scenarios to build predictive models that support climate-resilient agricultural strategies.
@@ -76,16 +76,22 @@ Unlike standard cross-validation, this project uses:
 
 ## Key Findings
 
-- **Best Model**: CatBoost with LOGO validation  
-  - R² ≈ 0.91, lowest MAE and RMSE across models  
-- Key drivers of compound variation:
-  - CO₂, Temperature, PI_abs, Fv/Fm  
-- Environmental variables influence different targets differently:
-  - VPD and Humidity have stronger effects on Root_TPC stability  
-- The model successfully captures non-linear relationships between climate and plant physiology  
-- The framework supports:
-  → Climate-resilient crop management  
-  → Data-driven agricultural decision-making  
+- **Best Model**: CatBoost with scenario-based LOGO validation  
+  - Achieved strong generalization performance (R² ≈ 0.91) across unseen climate scenarios  
+
+- **Robust Generalization**  
+  - LOGO validation confirms the model’s ability to adapt to different SSP scenarios  
+  → Not just high accuracy, but reliable performance under future climate conditions  
+
+- **Key Drivers of Compound Variation**  
+  - CO₂, Temperature, PI_abs, Fv/Fm are the most influential variables  
+  - VPD and Humidity show stronger effects on Root_TPC stability  
+
+- **Non-linear Climate–Plant Relationships**  
+  - Tree-based models successfully capture complex interactions between environment and physiology  
+
+- **Practical Implication**  
+  → Enables data-driven decision making for climate-resilient crop management  
 
 ---
 
