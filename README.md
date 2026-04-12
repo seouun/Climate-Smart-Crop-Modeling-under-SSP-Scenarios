@@ -1,148 +1,188 @@
 ![Python](https://img.shields.io/badge/Python-3.10-blue)
-![ML](https://img.shields.io/badge/Model-Machine%20Learning-green)
-![Climate](https://img.shields.io/badge/Domain-Climate%20Agriculture-orange)
-![Interpretability](https://img.shields.io/badge/Focus-Interpretability-purple)
-
-# Climate-Smart Crop Modeling: Predicting Bioactive Compounds under SSP Scenarios
-
-> Predicting and stabilizing bioactive compounds under climate change scenarios using machine learning with scenario-based generalization (LOGO).
-
-A machine learning project that models the impact of climate change on bioactive compounds (TPC, TFC) in *Cnidium officinale*.  
-This study integrates environmental variables, physiological indicators, and SSP climate scenarios to build predictive models that support climate-resilient agricultural strategies.
-
+![Competition](https://img.shields.io/badge/Competition-KISTI%20DATA·AI%202025-brightgreen)
+![Domain](https://img.shields.io/badge/Domain-Climate%20×%20Agriculture-orange)
+![Interpretability](https://img.shields.io/badge/Approach-Interpretable%20ML-purple)
+ 
+# Climate-Smart Crop Modeling: Predicting Bioactive Compounds in *Cnidium officinale* under SSP Climate Scenarios
+ 
+**2025 KISTI DATA·AI Analysis Competition** | Problem PROB-2821
+ 
+A machine learning study on how climate change scenarios (SSP1-2.6 / SSP3-7.0 / SSP5-8.5) alter the bioactive compound content (Total Phenolic Content, Total Flavonoid Content) of medicinal crop *Cnidium officinale* (천궁), with a focus on **scenario-level generalization** and **interpretable causal analysis**.
+ 
 ---
-
+ 
+## Research Question
+ 
+> *Can a machine learning model trained on two climate scenarios reliably predict bioactive compound levels in a completely unseen third scenario — and what environmental factors drive these changes?*
+ 
+Standard crop models optimize for within-sample accuracy. This project is designed around a harder, more realistic objective: **scenario extrapolation**. Models are evaluated using **Leave-One-Group-Out (LOGO) cross-validation** at the SSP scenario level, simulating the challenge of predicting under genuinely novel future climate conditions.
+ 
+---
+ 
+## Background
+ 
+*Cnidium officinale* is a high-value medicinal crop used in traditional medicine, functional foods, and pharmaceutical ingredients. Its bioactive quality is sensitive to environmental stress — yet most agricultural AI focuses on yield, not compound stability.
+ 
+| Scenario | Description | CO₂ by 2100 |
+|---|---|---|
+| SSP1-2.6 | Sustainable growth, low emissions | 432 ppm |
+| SSP3-7.0 | Fragmented policy, high vulnerability | 834 ppm |
+| SSP5-8.5 | Fossil-fuel intensive, urban-led development | 1,089 ppm |
+ 
+This framing connects directly to climate impact assessment under IPCC's Shared Socioeconomic Pathways — the same framework used in integrated assessment modeling (IAM) research.
+ 
+---
+ 
 ## Repository Structure
-
-| Folder/File | Description |
-|-------------|-------------|
-| `notebooks/` | End-to-end pipeline (preprocessing → modeling → evaluation → prediction) |
-| `docs/final_report.pdf` | Final report summarizing methodology and results |
-| `docs/interim_presentation.pdf` | Early-stage EDA and hypothesis exploration |
-| `data/` | Dataset description only (data not included) |
-
+ 
+```
+├── notebooks/
+│   ├── 01_eda_correlation.ipynb        # EDA: distribution, correlation, PCA
+│   ├── 02_baseline_regression.ipynb    # Linear, Ridge, Lasso, ElasticNet, PLS
+│   ├── 03_baseline_tree.ipynb          # RandomForest, XGBoost + tuning
+│   ├── 04_final_model_blend.ipynb      # Blending + linear calibration + SHAP
+│   └── 05_bayesian_hierarchical.ipynb  # PyMC Bayesian hierarchical model
+├── scripts/
+│   ├── run_preprocessing.py
+│   ├── run_train.py
+│   ├── run_tune_catboost_LOGO.py
+│   └── run_bayes_analysis.py
+├── docs/
+│   ├── interim_presentation.pdf        # Mid-project EDA & baseline results
+│   └── final_report.pdf
+└── data/
+    └── README.md                       # Data description (raw data not included)
+```
+ 
 ---
-
-## Analysis Overview
-
-### 1. Problem Definition
-
-Climate change introduces variability in environmental conditions (temperature, humidity, CO₂, VPD),  
-leading to instability in bioactive compounds (TPC, TFC) in medicinal crops.
-
-This project aims to:
-
-- Predict compound levels under different SSP scenarios  
-- Identify key environmental drivers  
-- Provide insights for **stable, high-quality crop production**
-
+ 
+## Data
+ 
+Data collected from **SPDS (Soil Plant Daylit System) chambers** at three SSP-simulated climate conditions.
+ 
+| Category | Variables |
+|---|---|
+| Environmental | Temperature, Humidity, VPD, CO₂ppm, PAR, Rainfall |
+| Physiological (chlorophyll/pigment) | Chl_a, Chl_b, TChl, Car, Chl_a_b, TCh-Car |
+| Physiological (photosynthesis efficiency) | Fv/Fm, PI_abs, SFI_abs, DF_abs |
+| Photosystem reaction center | ABS-RC, Tro-RC, Dio-RC, Eto-RC |
+| Extraction yield | Leaf_ExtractionYield, Root_ExtractionYield |
+| **Target variables** | **Leaf_TPC, Root_TPC, Leaf_TFC, Root_TFC** |
+ 
+> Raw data provided by the competition organizers and cannot be publicly shared. All code is available for reproducibility.
+ 
 ---
-
-### 2. Data
-
-| Category | Description |
-|----------|-------------|
-| Environmental Variables | Temperature, Humidity, VPD, CO₂, PAR, Rainfall |
-| Physiological Indicators | Chl_a, Chl_b, TChl, Car, Fv/Fm, PI_abs, etc. |
-| Target Variables | Leaf_TPC, Root_TPC, Leaf_TFC, Root_TFC |
-| Scenario | SSP 1-2.6, 3-7.0, 5-8.5 |
-
+ 
+## Methodology
+ 
+### Pipeline
+ 
+```
+Raw Data
+   │
+   ├─ EDA
+   │    ├─ Scenario-stratified distribution analysis (ANOVA, Kruskal-Wallis)
+   │    ├─ Correlation heatmaps per SSP scenario (SSP1 / SSP3 / SSP5)
+   │    └─ PCA: SSP1 ↔ SSP5 separation on photosynthesis + seasonality axis (PC1: 53%)
+   │
+   ├─ Preprocessing
+   │    ├─ No missing values; outlier clipping via IQR (Chl_a_b selective)
+   │    ├─ VIF-based multicollinearity reduction (target VIF < 10; 8 variables removed)
+   │    ├─ RobustScaler (robust to extreme values under SSP5 stress conditions)
+   │    └─ Month OneHot Encoding (captures seasonality as a quantitative signal)
+   │
+   ├─ Baseline Modeling
+   │    ├─ Regression: Linear, Ridge, Lasso, ElasticNet, PLS2/PLS3
+   │    └─ Tree: RandomForest, XGBoost (RandomizedSearch → fine-grained tuning)
+   │
+   ├─ Final Model
+   │    ├─ Blend: XGB(0.55) + Ridge(0.45) — OOF weight optimization
+   │    ├─ Linear Calibration — corrects scale/offset mismatch per scenario × target
+   │    └─ Interpretation: SHAP (beeswarm) + Permutation Importance (LOGO-based)
+   │
+   └─ Bayesian Hierarchical Model (PyMC)
+        ├─ Random slopes for Temp, Humid, CO₂ per SSP scenario
+        └─ Reports effect direction + 95% CI per scenario (WAIC/LOO for fit assessment)
+```
+ 
+### Validation Strategy: Scenario-Level LOGO
+ 
+Standard K-Fold cross-validation does not simulate a realistic climate adaptation problem — it leaks scenario-level information into training. This project uses **Leave-One-Group-Out (LOGO)** where each SSP scenario is entirely withheld as a test set in turn.
+ 
+This tests the harder question: *can the model extrapolate to a climate it has never seen?*
+ 
 ---
-
-### 3. Methodology
-
-| Step | Description |
-|------|-------------|
-| Preprocessing | Missing value handling, outlier removal, feature engineering |
-| Model Comparison | Ridge, Lasso, ElasticNet, PLS, RandomForest, CatBoost, GAM |
-| Validation Strategy | **LOGO (Leave-One-Group-Out)** based on SSP scenarios |
-| Model Selection | Based on generalization across unseen scenarios |
-| Interpretation | Feature importance, SHAP, and Bayesian analysis |
-
----
-
-### Key Approach: LOGO Validation
-
-Unlike standard cross-validation, this project uses:
-
-- **Leave-One-Group-Out (LOGO)** based on SSP scenarios  
-- Each scenario is completely excluded during training and used for testing  
-
-**This ensures:**
-- Robust evaluation under unseen climate conditions  
-- Stronger generalization for future environmental changes  
-
----
-
+ 
 ## Key Findings
-
-- **Best Model**: CatBoost with scenario-based LOGO validation  
-  - Achieved strong generalization performance (R² ≈ 0.91) across unseen climate scenarios  
-
-- **Robust Generalization**  
-  - LOGO validation confirms the model’s ability to adapt to different SSP scenarios  
-  → Not just high accuracy, but reliable performance under future climate conditions  
-
-- **Key Drivers of Compound Variation**  
-  - CO₂, Temperature, PI_abs, Fv/Fm are the most influential variables  
-  - VPD and Humidity show stronger effects on Root_TPC stability  
-
-- **Non-linear Climate–Plant Relationships**  
-  - Tree-based models successfully capture complex interactions between environment and physiology  
-
-- **Practical Implication**  
-  → Enables data-driven decision making for climate-resilient crop management  
-
+ 
+### 1. SSP-Dependent Compound Dynamics
+ 
+EDA revealed statistically significant differences across scenarios (Leaf_TPC: ANOVA p<0.001; Root_TFC: Kruskal-Wallis p<0.001). The pattern is consistent:
+ 
+> **As climate intensifies (SSP1 → SSP5), above-ground (leaf) compound accumulation becomes unstable, while below-ground (root) compounds increasingly dominate under environmental stress.**
+ 
+| Scenario | Pattern |
+|---|---|
+| SSP1 (mild) | Photosynthetic efficiency drives compound accumulation — standard physiology |
+| SSP3 (intermediate) | Leaf-compound correlation weakens; root retains photosynthetic linkage |
+| SSP5 (high stress) | Leaf TPC loses predictability; Root TPC/TFC governed directly by VPD and Temperature |
+ 
+This shift has direct implications for **harvest strategy under future climate conditions**.
+ 
+### 2. Model Performance (LOGO Cross-Validation)
+ 
+Final model: Blend(XGB 0.55 + Ridge 0.45) with linear calibration
+ 
+| Scenario | MAE | RMSE | R² |
+|---|---|---|---|
+| SSP1 | 0.386 | 0.483 | 0.826 |
+| SSP3 | 0.474 | 0.646 | 0.613 |
+| SSP5 | 0.380 | 0.548 | 0.797 |
+| **Average** | **0.413** | **0.559** | **0.745** |
+ 
+In-sample R² exceeds 0.99 for most targets. The gap to LOGO performance reflects the genuine difficulty of **scenario extrapolation** — predicting across a qualitatively different climate regime the model has never seen. SSP3's lower R² (0.613) is consistent with its high internal variability (bimodal distributions, wide IQR).
+ 
+### 3. Key Drivers (Feature Importance + SHAP)
+ 
+| Target | Primary Drivers |
+|---|---|
+| Leaf_TPC | Leaf_ExtractionYield, TCh-Car, Dio-RC |
+| Root_TPC | Temperature, CO₂ppm, Leaf_ExtractionYield |
+| Leaf_TFC | Leaf_ExtractionYield, Temperature |
+| Root_TFC | Leaf_ExtractionYield, Temp, Scenario offset (SSP3/SSP5) |
+ 
+With `month` excluded, **physiological stress indicators (Dio-RC, Eto-RC, PI_abs) and thermal variables emerge as stable core predictors**, offering more mechanistic interpretability than seasonality-anchored models.
+ 
+### 4. Bayesian Hierarchical Analysis
+ 
+PyMC-based model estimated SSP-specific random slopes for Temperature, Humidity, and CO₂. Key finding: **the effect direction of Temperature on compound content reverses between SSP1 and SSP5**, consistent with a threshold-based physiological stress response. All chains converged (target_accept=0.97, zero divergences).
+ 
 ---
-
-## Advanced Analysis
-
-### Bayesian Hierarchical Modeling
-
-- PyMC-based hierarchical model  
-- Random slopes per SSP scenario  
-- Provides:
-  - Effect direction  
-  - Uncertainty (95% CI)  
-  - Scenario-specific sensitivity  
-
-->  Unlike black-box models:
-- Enables **interpretable and probabilistic insights**
-
+ 
+## Limitations
+ 
+- Small experimental dataset from controlled chamber conditions — field generalizability is untested
+- **SSP3 remains the hardest scenario to generalize** (LOGO R² ≈ 0.61): its transitional stress regime is underrepresented relative to SSP1 and SSP5
+- Leaf_TPC shows near-zero Pearson r in some LOGO folds — the model tracks directional trends but struggles with absolute magnitude in low-variance targets
+- Soil properties, irrigation management, and genotype variation are not captured
+ 
 ---
-
-## Limitations & Future Work
-
-- External variables (e.g., soil conditions, management practices) not included  
-- Structural shifts under extreme climate scenarios may not be fully captured  
-- Future extensions:
-  - Multivariate models with exogenous variables  
-  - Integration with real-time climate data  
-  - Expansion to other crops and agricultural systems  
-
+ 
+## Implications for Climate-Resilient Agriculture
+ 
+1. **Harvest strategy**: Under SSP3/SSP5, root-based extraction yields more stable compound levels than leaf
+2. **Early warning indicators**: PI_abs and Fv/Fm are reliable leading signals of compound quality decline under thermal stress
+3. **Extensibility**: The LOGO validation framework and SSP-stratified analysis pipeline generalizes to other medicinal crops under climate pressure
+ 
 ---
-
-## Data Availability
-
-The dataset used in this project was provided for internal competition purposes and cannot be publicly shared.
-
-All code is provided for reproducibility.
-
----
-
+ 
 ## Environment
-
-- **Language**: Python 3.10  
-- **Libraries**: pandas, numpy, scikit-learn, matplotlib, seaborn, catboost, statsmodels, shap  
-- **Frameworks**: PyMC (Bayesian modeling)  
-
----
-
-## Summary
-
-This project goes beyond standard predictive modeling by:
-
-- Focusing on **generalization under climate scenarios**  
-- Combining **performance and interpretability**  
-- Providing **actionable insights for climate-smart agriculture**
-  -> A step toward data-driven, sustainable crop management.
+ 
+| Item | Spec |
+|---|---|
+| Language | Python 3.10 (Anaconda 3) |
+| Core Libraries | pandas 2.1.4, numpy 1.26.0, scikit-learn 1.4.2, catboost 1.2.5 |
+| Visualization | matplotlib 3.8.2, seaborn 0.13.1 |
+| Interpretability | shap 0.45.0 |
+| Bayesian Modeling | statsmodels 0.14.1 (PyMC) |
+| Hardware | Intel i7-14700, 32GB RAM, Windows 11 Pro |
