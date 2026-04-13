@@ -5,7 +5,7 @@
  
 # Climate-Smart Crop Modeling: Predicting Bioactive Compounds in *Cnidium officinale* under SSP Climate Scenarios
  
-**2025 KISTI DATA·AI Analysis Competition** | Problem PROB-2821
+**2025 KISTI DATA·AI Analysis Competition**
  
 A machine learning study on how climate change scenarios (SSP1-2.6 / SSP3-7.0 / SSP5-8.5) alter the bioactive compound content (Total Phenolic Content, Total Flavonoid Content) of medicinal crop *Cnidium officinale* (천궁), with a focus on **scenario-level generalization** and **interpretable causal analysis**.
  
