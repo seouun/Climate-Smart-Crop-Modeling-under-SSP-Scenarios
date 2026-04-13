@@ -115,15 +115,19 @@ This tests the harder question: *can the model extrapolate to a climate it has n
 This project went through two distinct phases. The mid-project analysis (documented in [`docs/interim_presentation.pdf`](docs/interim_presentation.pdf)) explored a broader candidate set before converging on the final pipeline. Key decisions made along the way:
 
 **Why not CatBoost?**
+
 CatBoost was evaluated as a final model candidate alongside XGBoost and Ridge. Under LOGO validation, CatBoost showed higher variance across SSP scenarios (average R² 0.615) compared to the XGB+Ridge blend, and offered no consistent advantage that justified the added complexity.
 
 **Why blend XGB and Ridge instead of a single model?**
+
 XGBoost generalized well to SSP5 but was unstable on SSP3. Ridge was the opposite — strong on SSP3 but weaker on SSP5. Blending the two (OOF-optimized weight: XGB 0.55, Ridge 0.45) produced more consistent performance across all three scenarios than either model alone.
 
 **Why add linear calibration?**
+
 Raw blend predictions showed systematic scale and offset mismatch per scenario × target combination — a pattern visible in the Pearson r vs. R² gap in diagnostic checks. A simple per-combination linear correction (ŷ → aŷ + b) resolved this without introducing additional model complexity.
 
 **Why use LOGO over K-Fold?**
+
 Scenario-level distribution shift (confirmed by ANOVA and PCA) means K-Fold cross-validation leaks scenario-level information into training folds, producing optimistic estimates. LOGO enforces a stricter, more realistic evaluation: the model must generalize to a climate regime it has never seen.
 
 ---
