@@ -42,11 +42,6 @@ This framing connects directly to climate impact assessment under IPCC's Shared 
 │   ├── 03_baseline_tree.ipynb          # RandomForest, XGBoost + tuning
 │   ├── 04_final_model_blend.ipynb      # Blending + linear calibration + SHAP
 │   └── 05_bayesian_hierarchical.ipynb  # PyMC Bayesian hierarchical model
-├── scripts/
-│   ├── run_preprocessing.py
-│   ├── run_train.py
-│   ├── run_tune_catboost_LOGO.py
-│   └── run_bayes_analysis.py
 ├── docs/
 │   ├── interim_presentation.pdf        # Mid-project EDA & baseline results
 │   └── final_report.pdf
