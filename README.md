@@ -144,6 +144,22 @@ EDA revealed statistically significant differences across scenarios (Leaf_TPC: A
 
 This shift has direct implications for **harvest strategy under future climate conditions**.
 
+![Target Distributions per SSP Scenario](docs/figures/target_distributions.png)
+*Figure 1. Target compound distributions across SSP scenarios. Leaf_TFC shows bimodal separation between SSP1 and SSP5, while Root_TFC concentrates near 0.6 under SSP5 — consistent with root-dominant stress response.*
+
+**PCA confirms scenario-level distributional shift** — justifying LOGO over K-Fold:
+
+![PCA SSP Scenario Separation](docs/figures/pca_scenario.png)
+*Figure 2. PCA scatter (PC1: 50.5%, PC2: 18.1%). SSP1 and SSP5 separate clearly along the photosynthesis + seasonality axis. SSP3 occupies an intermediate, high-variance region. This structural separation is the core motivation for scenario-level LOGO validation.*
+
+**Correlation structure changes across scenarios** — the same variable has different relationships with targets depending on climate intensity:
+
+| SSP1-2.6 | SSP3-7.0 | SSP5-8.5 |
+|---|---|---|
+| ![](docs/figures/correlation_SSP126.png) | ![](docs/figures/correlation_SSP370.png) | ![](docs/figures/correlation_SSP585.png) |
+
+*Figure 3. Per-scenario correlation heatmaps. In SSP1, photosynthetic efficiency (Fv-Fm, PI_abs) correlates positively with leaf compounds. By SSP5, these correlations collapse for Leaf_TPC while VPD and Temp emerge as dominant drivers of Root_TPC.*
+
 ### 2. Model Performance (LOGO Cross-Validation)
 
 Final model: Blend(XGB 0.55 + Ridge 0.45), evaluated via scenario-level LOGO
@@ -168,6 +184,12 @@ The wide gap between in-sample R² (≥0.99 for most targets) and LOGO performan
 
 With `month` excluded, **physiological stress indicators (Dio-RC, Eto-RC, PI_abs) and thermal variables emerge as stable core predictors**, offering more mechanistic interpretability than seasonality-anchored models.
 
+![SHAP Beeswarm](docs/figures/shap_beeswarm_all_targets.png)
+*Figure 4. SHAP beeswarm plots per target (in-sample, XGB full-data fit). Leaf_ExtractionYield dominates Leaf_TFC and Root_TFC predictions. For Root_TPC, Temperature and CO₂ppm show broad positive contributions at high feature values.*
+
+![Permutation Importance Heatmap](docs/figures/permutation_importance_heatmap.png)
+*Figure 5. Permutation Importance normalized per target (in-sample, XGB full-data fit). Leaf_ExtractionYield accounts for 89% of importance in Leaf_TFC — a physiological proxy that integrates extraction efficiency across both environmental and biological stress.*
+
 ### 4. Bayesian Hierarchical Analysis
 
 PyMC-based model estimated SSP-specific random slopes for Temperature, Humidity, and CO₂. Key findings from the slope estimates (mean ± 95% CI):
@@ -175,6 +197,9 @@ PyMC-based model estimated SSP-specific random slopes for Temperature, Humidity,
 - **Leaf_TPC × Temperature**: effect weakens monotonically across scenarios (SSP1: +0.83, SSP3: +0.29, SSP5: +0.11) — photosynthetic coupling with Temperature progressively decouples under stress
 - **Root_TPC × Temperature**: consistently negative across all scenarios (SSP1: −0.55, SSP5: −0.57) — root compounds are suppressed by thermal stress regardless of CO₂ level
 - **Root_TFC**: very small slopes across all variables, consistent with its low variance and near-zero LOGO Pearson r
+
+![Bayesian Random Slopes](docs/figures/bayesian_random_slopes.png)
+*Figure 6. Scenario-specific random slopes (mean ± 95% CI) from the PyMC hierarchical model. The monotonic weakening of Leaf_TPC × Temperature across SSP1→SSP3→SSP5 is the clearest signal of progressive physiological decoupling under climate stress.*
 
 Convergence: Leaf_TPC and Root_TPC converged well (R-hat < 1.01). **Leaf_TFC showed 150 divergences and R-hat = 1.09**, likely due to its multimodal distribution across scenarios — results for Leaf_TFC should be interpreted with caution. WAIC/LOO comparison was unavailable (log likelihood not stored in inference data).
 
