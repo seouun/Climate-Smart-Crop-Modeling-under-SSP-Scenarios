@@ -5,7 +5,7 @@
 
 # Climate-Smart Crop Modeling: Predicting Bioactive Compounds in *Cnidium officinale* under SSP Climate Scenarios
 
-**2025 KISTI DATA·AI Analysis Competition** 
+**2025 KISTI DATA·AI Analysis Competition**
 
 A machine learning study on how climate change scenarios (SSP1-2.6 / SSP3-7.0 / SSP5-8.5) alter the bioactive compound content (Total Phenolic Content, Total Flavonoid Content) of medicinal crop *Cnidium officinale* (천궁), with a focus on **scenario-level generalization** and **interpretable causal analysis**.
 
@@ -84,7 +84,7 @@ Raw Data
    │    ├─ No missing values; outlier clipping via IQR (Chl_a_b selective)
    │    ├─ VIF-based multicollinearity reduction (target VIF < 10; 8 variables removed)
    │    ├─ RobustScaler (robust to extreme values under SSP5 stress conditions)
-   │    └─ Month OneHot Encoding (captures seasonality as a quantitative signal)
+   │    └─ Month cyclical encoding — sin/cos transformation (captures seasonality continuously)
    │
    ├─ Baseline Modeling
    │    ├─ Regression: Linear, Ridge, Lasso, ElasticNet, PLS2/PLS3
@@ -93,7 +93,9 @@ Raw Data
    ├─ Final Model
    │    ├─ Blend: XGB(0.55) + Ridge(0.45) — OOF weight optimization
    │    ├─ Linear Calibration — corrects scale/offset mismatch per scenario × target
-   │    └─ Interpretation: SHAP (beeswarm) + Permutation Importance (LOGO-based)
+   │    └─ Interpretation: SHAP (beeswarm) + Permutation Importance
+   │         (both computed on full-data fit; LOGO-based SHAP was computationally
+   │          prohibitive given per-fold retraining costs)
    │
    └─ Bayesian Hierarchical Model (PyMC)
         ├─ Random slopes for Temp, Humid, CO₂ per SSP scenario
