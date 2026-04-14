@@ -44,7 +44,7 @@ This framing connects directly to climate impact assessment under IPCC's Shared 
 │   └── 05_bayesian_hierarchical.ipynb  # PyMC Bayesian hierarchical model
 ├── docs/
 │   ├── interim_presentation.pdf        # Mid-project EDA & baseline results
-│   └── final_report.pdf
+│   └── final.md
 └── data/
     └── README.md                       # Data description (raw data not included)
 ```
