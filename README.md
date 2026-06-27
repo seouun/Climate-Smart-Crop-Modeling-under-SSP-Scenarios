@@ -29,8 +29,6 @@ Standard crop models optimize for within-sample accuracy. This project is design
 | SSP3-7.0 | Fragmented policy, high vulnerability | 834 ppm |
 | SSP5-8.5 | Fossil-fuel intensive, urban-led development | 1,089 ppm |
 
-This framing connects directly to climate impact assessment under IPCC's Shared Socioeconomic Pathways — the same framework used in integrated assessment modeling (IAM) research.
-
 ---
 
 ## Repository Structure
